@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request, current_app, send_from_directory
 from werkzeug.utils import secure_filename
-from app.models.website import TeamMember
+from app import db
+from app.models.website import TeamMember, AboutContent
 import json
 import os
 
@@ -18,34 +19,28 @@ DEFAULT_ABOUT_CONTENT = {
     'deputy_head_teacher_image': ''
 }
 
-CONTENT_FILE_NAME = 'about_page.json'
-
-
-def get_content_file_path():
-    instance_path = current_app.instance_path
-    os.makedirs(instance_path, exist_ok=True)
-    return os.path.join(instance_path, CONTENT_FILE_NAME)
-
-
 def load_about_content():
-    content_file = get_content_file_path()
-    if os.path.exists(content_file):
+    row = AboutContent.query.first()
+    if row:
         try:
-            with open(content_file, 'r', encoding='utf-8') as f:
-                return json.load(f)
+            return json.loads(row.content)
         except Exception:
             pass
     return DEFAULT_ABOUT_CONTENT.copy()
 
 
 def save_about_content(content):
-    content_file = get_content_file_path()
     # Always save the image fields explicitly to test
     content.setdefault('director_image', '')
     content.setdefault('head_teacher_image', '')
     content.setdefault('deputy_head_teacher_image', '')
-    with open(content_file, 'w', encoding='utf-8') as f:
-        json.dump(content, f, ensure_ascii=False, indent=2)
+    row = AboutContent.query.first()
+    if not row:
+        row = AboutContent(content=json.dumps(content))
+        db.session.add(row)
+    else:
+        row.content = json.dumps(content)
+    db.session.commit()
 
 
 @website_about_bp.route('/uploads/<path:filename>', methods=['GET'], strict_slashes=False)

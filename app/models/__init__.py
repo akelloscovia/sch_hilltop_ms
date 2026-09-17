@@ -15,7 +15,8 @@ from app.models.website import (
     AboutPage, Operation, FocusArea, CorePillar, TeamMember,
     AdmissionApplication, WebsiteContactInfo, WebsiteContactMessage,
     FooterInfo, Gallery, HomePage, ProductPreview, GalleryImage,
-    WebsiteAnnouncement, WebsiteStudent, Staff
+    WebsiteAnnouncement, WebsiteStudent, Staff,
+    AboutContent, AcademicsContent, AdmissionsContent
 )
 
 __all__ = [
@@ -49,5 +50,6 @@ __all__ = [
     'AboutPage', 'Operation', 'FocusArea', 'CorePillar', 'TeamMember',
     'AdmissionApplication', 'WebsiteContactInfo', 'WebsiteContactMessage',
     'FooterInfo', 'Gallery', 'HomePage', 'ProductPreview', 'GalleryImage',
-    'WebsiteAnnouncement', 'WebsiteStudent', 'Staff'
+    'WebsiteAnnouncement', 'WebsiteStudent', 'Staff',
+    'AboutContent', 'AcademicsContent', 'AdmissionsContent'
 ]

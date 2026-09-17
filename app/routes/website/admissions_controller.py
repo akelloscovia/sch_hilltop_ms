@@ -4,7 +4,7 @@ from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from werkzeug.utils import secure_filename
 from app import db
-from app.models.website import AdmissionApplication
+from app.models.website import AdmissionApplication, AdmissionsContent
 from app.models import User
 from app.email_service import send_email
 import datetime
@@ -47,30 +47,24 @@ DEFAULT_ADMISSIONS_CONTENT = {
     'image': ''
 }
 
-CONTENT_FILE_NAME = 'admissions_page.json'
-
-
-def get_content_file_path():
-    instance_path = current_app.instance_path
-    os.makedirs(instance_path, exist_ok=True)
-    return os.path.join(instance_path, CONTENT_FILE_NAME)
-
-
 def load_admissions_content():
-    content_file = get_content_file_path()
-    if os.path.exists(content_file):
+    row = AdmissionsContent.query.first()
+    if row:
         try:
-            with open(content_file, 'r', encoding='utf-8') as f:
-                return json.load(f)
+            return json.loads(row.content)
         except Exception:
             pass
     return DEFAULT_ADMISSIONS_CONTENT.copy()
 
 
 def save_admissions_content(content):
-    content_file = get_content_file_path()
-    with open(content_file, 'w', encoding='utf-8') as f:
-        json.dump(content, f, ensure_ascii=False, indent=2)
+    row = AdmissionsContent.query.first()
+    if not row:
+        row = AdmissionsContent(content=json.dumps(content))
+        db.session.add(row)
+    else:
+        row.content = json.dumps(content)
+    db.session.commit()
 
 
 # GET admissions page

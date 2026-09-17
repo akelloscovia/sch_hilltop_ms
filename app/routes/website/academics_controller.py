@@ -1,5 +1,7 @@
 # app/controllers/academics_controller.py
 from flask import Blueprint, jsonify, request, current_app
+from app import db
+from app.models.website import AcademicsContent
 import json
 import os
 
@@ -52,30 +54,24 @@ DEFAULT_ACADEMICS_CONTENT = {
     }
 }
 
-CONTENT_FILE_NAME = 'academics_page.json'
-
-
-def get_content_file_path():
-    instance_path = current_app.instance_path
-    os.makedirs(instance_path, exist_ok=True)
-    return os.path.join(instance_path, CONTENT_FILE_NAME)
-
-
 def load_academics_content():
-    content_file = get_content_file_path()
-    if os.path.exists(content_file):
+    row = AcademicsContent.query.first()
+    if row:
         try:
-            with open(content_file, 'r', encoding='utf-8') as f:
-                return json.load(f)
+            return json.loads(row.content)
         except Exception:
             pass
     return DEFAULT_ACADEMICS_CONTENT.copy()
 
 
 def save_academics_content(content):
-    content_file = get_content_file_path()
-    with open(content_file, 'w', encoding='utf-8') as f:
-        json.dump(content, f, ensure_ascii=False, indent=2)
+    row = AcademicsContent.query.first()
+    if not row:
+        row = AcademicsContent(content=json.dumps(content))
+        db.session.add(row)
+    else:
+        row.content = json.dumps(content)
+    db.session.commit()
 
 
 # GET /api/v1/academics/

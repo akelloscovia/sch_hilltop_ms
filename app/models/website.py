@@ -356,4 +356,22 @@ class Staff(db.Model):
         }
 
 
+class AboutContent(db.Model):
+    __tablename__ = 'about_content'
+    id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.Text, nullable=False)
+
+
+class AcademicsContent(db.Model):
+    __tablename__ = 'academics_content'
+    id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.Text, nullable=False)
+
+
+class AdmissionsContent(db.Model):
+    __tablename__ = 'admissions_content'
+    id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.Text, nullable=False)
+
+
 
