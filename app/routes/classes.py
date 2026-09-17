@@ -1,6 +1,6 @@
 from flask import Blueprint, request
 from app import db
-from app.models import Class, Subject, User, TimetableEntry, ClassNote
+from app.models import Class, Subject, User, TimetableEntry, ClassNote, Student
 from app.utils.decorators import (
     token_required, admin_required, teacher_or_admin_required, validate_request_json,
     get_pagination_params, paginate_query
@@ -111,6 +111,35 @@ def update_class(current_user, class_id):
     except Exception as e:
         db.session.rollback()
         return ResponseFormatter.error(f'Error updating class: {str(e)}', status_code=500)
+
+
+@classes_bp.route('/<int:class_id>', methods=['DELETE'])
+@token_required
+@admin_required
+def delete_class(current_user, class_id):
+    """Delete a class, provided no students are enrolled in it"""
+    class_obj = Class.query.get(class_id)
+    if not class_obj:
+        return ResponseFormatter.error('Class not found', status_code=404)
+
+    student_count = Student.query.filter_by(class_id=class_id).count()
+    if student_count > 0:
+        return ResponseFormatter.error(
+            f'Cannot delete class: {student_count} student(s) are enrolled in it',
+            status_code=400
+        )
+
+    try:
+        Subject.query.filter_by(class_id=class_id).delete()
+        TimetableEntry.query.filter_by(class_id=class_id).delete()
+        ClassNote.query.filter_by(class_id=class_id).delete()
+        db.session.delete(class_obj)
+        db.session.commit()
+
+        return ResponseFormatter.success(message='Class deleted successfully')
+    except Exception as e:
+        db.session.rollback()
+        return ResponseFormatter.error(f'Error deleting class: {str(e)}', status_code=500)
 
 
 @classes_bp.route('/<int:class_id>/subjects', methods=['GET'])

@@ -145,7 +145,6 @@ def create_app(config_name=None):
     from app.routes.reports import reports_bp
     from app.routes.classes import classes_bp
     from app.routes.communication import communication_bp
-    from app.routes.contact import contact_bp
     from app.routes.admissions import admissions_bp
     from app.routes.finance import finance_bp
     from app.routes.library import library_bp
@@ -169,7 +168,6 @@ def create_app(config_name=None):
     app.register_blueprint(reports_bp, url_prefix='/api/v1/reports')
     app.register_blueprint(classes_bp, url_prefix='/api/v1/classes')
     app.register_blueprint(communication_bp, url_prefix='/api/v1/communication')
-    app.register_blueprint(contact_bp, url_prefix='/api/v1')
     app.register_blueprint(admissions_bp, url_prefix='/api/v1/admissions')
     app.register_blueprint(finance_bp, url_prefix='/api/v1/finance')
     app.register_blueprint(library_bp, url_prefix='/api/v1/library')
